@@ -16,13 +16,13 @@ data class BGGPlayPlayerRemote(
     val name: String,
     @field:Attribute(name = "startposition", required = false)
     @param:Attribute(name = "startposition", required = false)
-    val startPosition: String,
+    val startPosition: String? = null,
     @field:Attribute(name = "color", required = false)
     @param:Attribute(name = "color", required = false)
     val color: String? = null,
-    @field:Attribute(name = "score")
-    @param:Attribute(name = "score")
-    val score: Int? = null,
+    @field:Attribute(name = "score", required = false)
+    @param:Attribute(name = "score", required = false)
+    val scoreString: String? = null,
     @field:Attribute(name = "new")
     @param:Attribute(name = "new")
     val new: Int,
@@ -35,4 +35,5 @@ data class BGGPlayPlayerRemote(
 ) {
     val isNew = new == 1
     val didWin = winInt == 1
+    val score = if (scoreString.isNullOrEmpty()) null else scoreString.toInt()
 }
