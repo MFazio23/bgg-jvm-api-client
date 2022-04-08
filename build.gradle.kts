@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.mfazio.bgg"
-version = "0.3.1"
+version = "0.4.0"
 
 val artifactName = project.name
 val artifactGroup = project.group.toString()
@@ -17,6 +17,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("com.squareup.retrofit2:converter-moshi:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-scalars:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-simplexml:$retrofitVersion") {
         exclude(mapOf("module" to "stax-api"))
