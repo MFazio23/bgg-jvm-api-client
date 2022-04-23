@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.mfazio.bgg"
-version = "0.4.0"
+version = "0.4.1"
 
 val artifactName = project.name
 val artifactGroup = project.group.toString()

@@ -20,11 +20,14 @@ class BGGXMLServiceRepositoryImpl(
     private val bggService: BGGXMLService = getDefaultBGGXMLService()
 ) : BGGXMLServiceRepository {
     override suspend fun getCollectionForUser(userName: String, isOwned: Boolean, retryDelay: Long?): BGGItemCollectionRemote? {
+        println("Attempting to load collection for $userName")
+
         var tries = 1
 
         while (tries < COLLECTION_ATTEMPTS) {
-            println("Attempt #${tries}")
+            println("Collection call attempt #${tries}")
             getCollectionForUserFromString(userName, isOwned)?.let { collection ->
+                println("Collection found for $userName! ${"${(collection.items?.size ?: -1)} items"}")
                 return collection
             }
 
@@ -32,6 +35,8 @@ class BGGXMLServiceRepositoryImpl(
 
             tries++
         }
+
+        println("Could not obtain collection for $userName ")
 
         return null
     }
