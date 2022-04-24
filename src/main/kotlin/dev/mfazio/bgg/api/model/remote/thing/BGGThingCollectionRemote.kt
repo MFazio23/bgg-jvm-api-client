@@ -8,8 +8,8 @@ import org.simpleframework.xml.Root
 data class BGGThingCollectionRemote(
     @field:Attribute(name = "termsofuse", required = false)
     @param:Attribute(name = "termsofuse", required = false)
-    val termsOfUseUrl: String,
+    val termsOfUseUrl: String? = null,
     @field:ElementList(name = "items", inline = true, entry = "item", required = false)
     @param:ElementList(name = "items", inline = true, entry = "item", required = false)
-    val things: List<BGGThingRemote>
+    val things: List<BGGThingRemote>? = null
 )

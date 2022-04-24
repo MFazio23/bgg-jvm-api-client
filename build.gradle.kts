@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.mfazio.bgg"
-version = "0.4.1"
+version = "0.5.0"
 
 val artifactName = project.name
 val artifactGroup = project.group.toString()
@@ -15,7 +15,7 @@ val publicationName = project.name
 dependencies {
     val retrofitVersion = "2.9.0"
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-moshi:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-scalars:$retrofitVersion")

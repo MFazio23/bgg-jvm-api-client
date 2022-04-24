@@ -21,18 +21,18 @@ data class BGGItemRemote(
     @field:Element(name = "name")
     @param:Element(name = "name")
     val name: String,
-    @field:Element(name = "yearpublished")
-    @param:Element(name = "yearpublished")
-    val yearPublished: Int,
-    @field:Element(name = "image")
-    @param:Element(name = "image")
-    val imageUrl: String,
-    @field:Element(name = "thumbnail")
-    @param:Element(name = "thumbnail")
-    val thumbnailUrl: String,
-    @field:Element(name = "numplays")
-    @param:Element(name = "numplays")
-    val numberOfPlays: Int,
+    @field:Element(name = "yearpublished", required = false)
+    @param:Element(name = "yearpublished", required = false)
+    val yearPublished: Int? = null,
+    @field:Element(name = "image", required = false)
+    @param:Element(name = "image", required = false)
+    val imageUrl: String? = null,
+    @field:Element(name = "thumbnail", required = false)
+    @param:Element(name = "thumbnail", required = false)
+    val thumbnailUrl: String? = null,
+    @field:Element(name = "numplays", required = false)
+    @param:Element(name = "numplays", required = false)
+    val numberOfPlays: Int? = null,
     @field:Element(name = "status")
     @param:Element(name = "status")
     val itemStatus: BGGItemStatusRemote,

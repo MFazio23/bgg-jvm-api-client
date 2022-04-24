@@ -19,14 +19,14 @@ import kotlin.coroutines.suspendCoroutine
 class BGGXMLServiceRepositoryImpl(
     private val bggService: BGGXMLService = getDefaultBGGXMLService()
 ) : BGGXMLServiceRepository {
-    override suspend fun getCollectionForUser(userName: String, isOwned: Boolean, retryDelay: Long?): BGGItemCollectionRemote? {
+    override suspend fun getCollectionForUser(userName: String, isOwned: Boolean, isBrief: Boolean, retryDelay: Long?): BGGItemCollectionRemote? {
         println("Attempting to load collection for $userName")
 
         var tries = 1
 
         while (tries < COLLECTION_ATTEMPTS) {
             println("Collection call attempt #${tries}")
-            getCollectionForUserFromString(userName, isOwned)?.let { collection ->
+            getCollectionForUserFromString(userName, isOwned, isBrief)?.let { collection ->
                 println("Collection found for $userName! ${"${(collection.items?.size ?: -1)} items"}")
                 return collection
             }
@@ -41,38 +41,60 @@ class BGGXMLServiceRepositoryImpl(
         return null
     }
 
-    private suspend fun getCollectionForUserFromString(userName: String, isOwned: Boolean): BGGItemCollectionRemote? = suspendCoroutine { continuation ->
-        bggService.getItemCollectionCall(
-            userName = userName,
-            isOwnedNumeric = if (isOwned) 1 else 0
-        ).enqueue(
-            object : Callback<String?> {
-                override fun onResponse(call: Call<String?>, response: Response<String?>) {
-                    val result = if (response.code() == 202) {
-                        null
-                    } else {
-                        xmlSerializer.read(BGGItemCollectionRemote::class.java, response.body())
+    private suspend fun getCollectionForUserFromString(userName: String, isOwned: Boolean, isBrief: Boolean): BGGItemCollectionRemote? =
+        suspendCoroutine { continuation ->
+            bggService.getItemCollectionCall(
+                userName = userName,
+                isOwnedNumeric = if (isOwned) 1 else 0,
+                isBriefNumeric = if (isBrief) 1 else 0,
+            ).enqueue(
+                object : Callback<String?> {
+                    override fun onResponse(call: Call<String?>, response: Response<String?>) {
+                        val result = if (response.code() == 202) {
+                            null
+                        } else {
+                            xmlSerializer.read(BGGItemCollectionRemote::class.java, response.body())
+                        }
+
+                        continuation.resume(result)
                     }
 
-                    continuation.resume(result)
+                    override fun onFailure(call: Call<String?>, t: Throwable) {
+                        continuation.resume(null)
+                    }
                 }
+            )
+        }
 
-                override fun onFailure(call: Call<String?>, t: Throwable) {
-                    continuation.resume(null)
-                }
-            }
+    override suspend fun getBoardGameCollectionWithDetails(userName: String, isOwned: Boolean, retryDelay: Long?): BGGThingCollectionRemote? {
+        val collection = getCollectionForUser(
+            userName = userName,
+            isOwned = isOwned,
+            isBrief = true,
+            retryDelay = retryDelay
         )
+
+        val boardGames = collection?.items?.mapNotNull { item -> item.objectId.toIntOrNull() }?.let { boardGameIds ->
+            getThingCollection(boardGameIds, BOARD_GAME_THING_TYPE)
+        }
+
+        return boardGames
     }
 
     override suspend fun getPlaysForUser(userName: String): BGGPlayListRemote = bggService.getPlaysForUser(userName)
 
-    override suspend fun getThing(id: Int, type: String?): BGGThingRemote? = getThingCollection(id, type).things.firstOrNull()
+    override suspend fun getThing(id: Int, type: String?): BGGThingRemote? = getThingCollection(id, type).things?.firstOrNull()
 
-    override suspend fun getThingCollection(id: Int, type: String?): BGGThingCollectionRemote = bggService.getThing(thingId = id, thingType = type)
+    override suspend fun getThingCollection(id: Int, type: String?): BGGThingCollectionRemote = bggService.getThing(thingId = id.toString(), thingType = type)
+
+    override suspend fun getThingCollection(ids: List<Int>, type: String?): BGGThingCollectionRemote =
+        bggService.getThing(thingId = ids.joinToString(","), thingType = type)
 
     companion object {
         private const val DELAY_MS = 3000L
+        private const val GAME_DELAY_MS = 1000L
         private const val COLLECTION_ATTEMPTS = 5
+        private const val BOARD_GAME_THING_TYPE = "boardgame"
 
         private val xmlSerializer = Persister(VisitorStrategy(BGGThingPollVisitor()))
     }
