@@ -24,6 +24,8 @@ dependencies {
         exclude(mapOf("module" to "stax"))
         exclude(mapOf("module" to "xpp3"))
     }
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 }
 
 val sourcesJar by tasks.creating(Jar::class) {

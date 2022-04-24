@@ -18,6 +18,7 @@ interface BGGXMLService {
     @GET(Routes.thing)
     suspend fun getThing(
         @Query("id") thingId: String,
+        @Query("stats") statsNumeric: Int,
         @Query("type") thingType: String? = defaultThingType,
     ): BGGThingCollectionRemote
 

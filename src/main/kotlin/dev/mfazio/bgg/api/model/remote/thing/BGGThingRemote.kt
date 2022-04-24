@@ -52,5 +52,8 @@ data class BGGThingRemote(
     @field:ElementList(inline = true, entry = "poll", required = false)
     @param:ElementList(inline = true, entry = "poll", required = false)
     val polls: List<BGGThingPollRemote>? = emptyList(),
+    @field:Element(name = "statistics", required = false)
+    @param:Element(name = "statistics", required = false)
+    val statistics: BGGThingStatistics? = null,
 )
 

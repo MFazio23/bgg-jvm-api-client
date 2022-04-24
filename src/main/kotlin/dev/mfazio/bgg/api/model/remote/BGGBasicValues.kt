@@ -13,3 +13,9 @@ data class BGGIntValue(
     @param:Attribute(name = "value")
     val value: Int,
 )
+
+data class BGGDoubleValue(
+    @field:Attribute(name = "value")
+    @param:Attribute(name = "value")
+    val value: Double,
+)

@@ -1,5 +1,6 @@
 package dev.mfazio.bgg.api.repositories
 
+import dev.mfazio.bgg.api.extensions.toInt
 import dev.mfazio.bgg.api.model.remote.collection.BGGItemCollectionRemote
 import dev.mfazio.bgg.api.model.remote.plays.BGGPlayListRemote
 import dev.mfazio.bgg.api.model.remote.thing.BGGThingCollectionRemote
@@ -45,8 +46,8 @@ class BGGXMLServiceRepositoryImpl(
         suspendCoroutine { continuation ->
             bggService.getItemCollectionCall(
                 userName = userName,
-                isOwnedNumeric = if (isOwned) 1 else 0,
-                isBriefNumeric = if (isBrief) 1 else 0,
+                isOwnedNumeric = isOwned.toInt(),
+                isBriefNumeric = isBrief.toInt(),
             ).enqueue(
                 object : Callback<String?> {
                     override fun onResponse(call: Call<String?>, response: Response<String?>) {
@@ -75,7 +76,11 @@ class BGGXMLServiceRepositoryImpl(
         )
 
         val boardGames = collection?.items?.mapNotNull { item -> item.objectId.toIntOrNull() }?.let { boardGameIds ->
-            getThingCollection(boardGameIds, BOARD_GAME_THING_TYPE)
+            getThingCollection(
+                ids = boardGameIds,
+                stats = true,
+                type = BOARD_GAME_THING_TYPE
+            )
         }
 
         return boardGames
@@ -83,16 +88,16 @@ class BGGXMLServiceRepositoryImpl(
 
     override suspend fun getPlaysForUser(userName: String): BGGPlayListRemote = bggService.getPlaysForUser(userName)
 
-    override suspend fun getThing(id: Int, type: String?): BGGThingRemote? = getThingCollection(id, type).things?.firstOrNull()
+    override suspend fun getThing(id: Int, stats: Boolean, type: String?): BGGThingRemote? = getThingCollection(id, stats, type).things?.firstOrNull()
 
-    override suspend fun getThingCollection(id: Int, type: String?): BGGThingCollectionRemote = bggService.getThing(thingId = id.toString(), thingType = type)
+    override suspend fun getThingCollection(id: Int, stats: Boolean, type: String?): BGGThingCollectionRemote =
+        bggService.getThing(thingId = id.toString(), statsNumeric = stats.toInt(), thingType = type)
 
-    override suspend fun getThingCollection(ids: List<Int>, type: String?): BGGThingCollectionRemote =
-        bggService.getThing(thingId = ids.joinToString(","), thingType = type)
+    override suspend fun getThingCollection(ids: List<Int>, stats: Boolean, type: String?): BGGThingCollectionRemote =
+        bggService.getThing(thingId = ids.joinToString(","), statsNumeric = stats.toInt(), thingType = type)
 
     companion object {
         private const val DELAY_MS = 3000L
-        private const val GAME_DELAY_MS = 1000L
         private const val COLLECTION_ATTEMPTS = 5
         private const val BOARD_GAME_THING_TYPE = "boardgame"
 
